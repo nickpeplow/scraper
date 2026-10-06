@@ -1,0 +1,131 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String    @id @default(uuid())
+  email     String    @unique
+  apiKey    String    @unique @map("api_key")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  
+  projects  Project[]
+  jobs      Job[]
+  
+  @@map("users")
+}
+
+model Project {
+  id          String    @id @default(uuid())
+  userId      String    @map("user_id")
+  name        String
+  description String?
+  settings    Json?
+  webhookUrl  String?   @map("webhook_url")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  
+  user        User      @relation(fields: [userId], references: [id])
+  jobs        Job[]
+  
+  @@map("projects")
+}
+
+model Job {
+  id            String    @id @default(uuid())
+  userId        String    @map("user_id")
+  projectId     String    @map("project_id")
+  url           String
+  status        String    @default("pending")
+  priority      Int       @default(5)
+  scheduledAt   DateTime? @map("scheduled_at")
+  retryCount    Int       @default(0) @map("retry_count")
+  maxRetries    Int       @default(3) @map("max_retries")
+  config        Json?
+  parentJobId   String?   @map("parent_job_id")
+  webhookUrl    String?   @map("webhook_url")
+  metadata      Json?
+  createdAt     DateTime  @default(now()) @map("created_at")
+  startedAt     DateTime? @map("started_at")
+  completedAt   DateTime? @map("completed_at")
+  
+  user          User      @relation(fields: [userId], references: [id])
+  project       Project   @relation(fields: [projectId], references: [id])
+  parentJob     Job?      @relation("JobRetries", fields: [parentJobId], references: [id])
+  retries       Job[]     @relation("JobRetries")
+  result        JobResult?
+  events        JobEvent[]
+  
+  @@index([status])
+  @@index([createdAt])
+  @@map("jobs")
+}
+
+model JobResult {
+  id                 String    @id @default(uuid())
+  jobId              String    @unique @map("job_id")
+  scrapedData        Json?     @map("scraped_data")
+  format             String    @default("html")
+  responseStatusCode Int?      @map("response_status_code")
+  responseHeaders    Json?     @map("response_headers")
+  executionTimeMs    Int?      @map("execution_time_ms")
+  dataSizeBytes      BigInt?   @map("data_size_bytes")
+  proxyId            String?   @map("proxy_id")
+  finalUrl           String?   @map("final_url")
+  contentType        String?   @map("content_type")
+  redirectCount      Int?      @map("redirect_count")
+  serverIp           String?   @map("server_ip")
+  errorMessage       String?   @map("error_message")
+  errorType          String?   @map("error_type")
+  createdAt          DateTime  @default(now()) @map("created_at")
+  
+  job                Job       @relation(fields: [jobId], references: [id])
+  proxy              Proxy?    @relation(fields: [proxyId], references: [id])
+  
+  @@map("job_results")
+}
+
+model Proxy {
+  id                String    @id @default(uuid())
+  host              String
+  port              Int
+  username          String?
+  password          String?
+  protocol          String    @default("http")
+  proxyType         String    @map("proxy_type")
+  provider          String
+  countryCode       String?   @map("country_code")
+  status            String    @default("active")
+  lastUsedAt        DateTime? @map("last_used_at")
+  failureCount      Int       @default(0) @map("failure_count")
+  successCount      Int       @default(0) @map("success_count")
+  lastError         String?   @map("last_error")
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+  deletedAt         DateTime? @map("deleted_at")
+  
+  jobResults        JobResult[]
+  
+  @@unique([host, port])
+  @@index([status])
+  @@map("proxies")
+}
+
+model JobEvent {
+  id         String    @id @default(uuid())
+  jobId      String    @map("job_id")
+  fromStatus String    @map("from_status")
+  toStatus   String    @map("to_status")
+  timestamp  DateTime  @default(now())
+  details    Json?
+  
+  job        Job       @relation(fields: [jobId], references: [id])
+  
+  @@index([jobId])
+  @@map("job_events")
+}

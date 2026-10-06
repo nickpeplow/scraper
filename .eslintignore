@@ -1,0 +1,23 @@
+# Dependencies
+node_modules
+
+# Build outputs
+.next
+out
+build
+dist
+
+# Test scripts
+test-*.ts
+check-*.ts
+
+# CLI scripts that need console output
+scripts/generate-api-key.ts
+
+# Prisma
+prisma/seed.ts
+
+# Config files
+next.config.js
+postcss.config.js
+tailwind.config.js

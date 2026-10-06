@@ -1,0 +1,73 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@theme {
+  --font-sans: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  
+  --radius: 0.5rem;
+  
+  --color-background: #ffffff;
+  --color-foreground: #0a0a0a;
+  --color-muted: #f4f4f5;
+  --color-muted-foreground: #71717a;
+  --color-card: #ffffff;
+  --color-card-foreground: #0a0a0a;
+  --color-border: #e4e4e7;
+  --color-primary: #2563eb;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #f4f4f5;
+  --color-secondary-foreground: #18181b;
+  --color-destructive: #ef4444;
+  --color-destructive-foreground: #ffffff;
+  --color-ring: #2563eb;
+}
+
+.dark {
+  --color-background: #0a0a0a;
+  --color-foreground: #fafafa;
+  --color-muted: #27272a;
+  --color-muted-foreground: #a1a1aa;
+  --color-card: #0a0a0a;
+  --color-card-foreground: #fafafa;
+  --color-border: #27272a;
+  --color-primary: #3b82f6;
+  --color-primary-foreground: #030712;
+  --color-secondary: #27272a;
+  --color-secondary-foreground: #fafafa;
+  --color-destructive: #991b1b;
+  --color-destructive-foreground: #fafafa;
+  --color-ring: #1d4ed8;
+}
+
+* {
+  border-color: theme(colors.border);
+}
+
+body {
+  background-color: theme(colors.background);
+  color: theme(colors.foreground);
+  font-family: theme(fontFamily.sans);
+}
+
+/* Utility classes for Tailwind v4 */
+.min-h-screen {
+  min-height: 100vh;
+}
+
+.max-w-7xl {
+  max-width: 80rem;
+}
+
+.text-muted-foreground {
+  color: theme(colors.muted-foreground);
+}
+
+/* Fix for Radix UI Select dropdown z-index issues */
+[data-radix-select-content] {
+  z-index: 9999 !important;
+}
+
+/* Ensure select portals render above other content */
+[data-radix-popper-content-wrapper] {
+  z-index: 9999 !important;
+}
